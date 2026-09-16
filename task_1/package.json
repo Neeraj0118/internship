@@ -1,0 +1,26 @@
+{
+  "name": "task-01-secure-user-auth",
+  "version": "1.0.0",
+  "description": "Secure User Authentication System with Login, Registration, JWT Session Management, and Role-Based Access Control (RBAC)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/auth.test.js"
+  },
+  "keywords": [
+    "authentication",
+    "jwt",
+    "rbac",
+    "bcrypt",
+    "express",
+    "sqlite"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task-01 | Secure User Authentication System</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header / Navbar -->
+    <header class="navbar">
+      <div class="brand">
+        <div class="logo-icon">🔒</div>
+        <div class="brand-text">
+          <h1>SecureAuth</h1>
+          <span class="subtitle">Task-01 Authentication System</span>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <button id="nav-register" class="nav-btn active" onclick="switchTab('register')">Register</button>
+        <button id="nav-login" class="nav-btn" onclick="switchTab('login')">Login</button>
+        <button id="nav-dashboard" class="nav-btn hidden" onclick="switchTab('dashboard')">User Dashboard</button>
+        <button id="nav-admin" class="nav-btn hidden" onclick="switchTab('admin')">Admin Panel</button>
+        <button id="nav-logout" class="nav-btn logout-btn hidden" onclick="handleLogout()">Logout</button>
+      </nav>
+    </header>
+
+    <!-- Global Alert / Toast Message -->
+    <div id="alert-container" class="alert-container hidden">
+      <div id="alert-message" class="alert-message"></div>
+    </div>
+
+    <!-- Active User Header Banner -->
+    <div id="user-status-bar" class="user-status-bar hidden">
+      <div class="user-info">
+        <span class="user-avatar" id="avatar-icon">👤</span>
+        <div>
+          <strong id="logged-user-name">User</strong>
+          <span id="logged-user-email" class="text-muted">user@example.com</span>
+        </div>
+      </div>
+      <div class="role-badge-container">
+        <span id="logged-user-role" class="badge badge-user">USER</span>
+      </div>
+    </div>
+
+    <!-- Main Content Panels -->
+    <main class="main-content">
+
+      <!-- SECTION 1: REGISTER VIEW -->
+      <section id="view-register" class="view-panel active">
+        <div class="card">
+          <div class="card-header">
+            <h2>Create New Account</h2>
+            <p>Register to get secure JWT access token and explore protected routes.</p>
+          </div>
+          <form id="register-form" onsubmit="handleRegister(event)">
+            <div class="form-group">
+              <label for="reg-username">Username</label>
+              <input type="text" id="reg-username" placeholder="e.g. john_doe" required minlength="3">
+            </div>
+
+            <div class="form-group">
+              <label for="reg-email">Email Address</label>
+              <input type="email" id="reg-email" placeholder="name@example.com" required>
+            </div>
+
+            <div class="form-group">
+              <label for="reg-password">Password</label>
+              <input type="password" id="reg-password" placeholder="At least 6 characters" required minlength="6">
+            </div>
+
+            <div class="form-group">
+              <label for="reg-role">Account Role (Role-Based Access Control)</label>
+              <select id="reg-role">
+                <option value="user" selected>Standard User (Access User Dashboard)</option>
+                <option value="admin">Administrator (Access User & Admin Panels)</option>
+              </select>
+              <small class="form-hint">Choose 'Administrator' to test RBAC protected admin routes.</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Sign Up & Register</button>
+          </form>
+
+          <div class="card-footer">
+            <p>Already have an account? <a href="#" onclick="switchTab('login')">Log In here</a></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: LOGIN VIEW -->
+      <section id="view-login" class="view-panel">
+        <div class="card">
+          <div class="card-header">
+            <h2>Welcome Back</h2>
+            <p>Enter your credentials to authenticate and receive your JWT token.</p>
+          </div>
+          <form id="login-form" onsubmit="handleLogin(event)">
+            <div class="form-group">
+              <label for="login-email">Email or Username</label>
+              <input type="text" id="login-email" placeholder="Email or Username" required>
+            </div>
+
+            <div class="form-group">
+              <label for="login-password">Password</label>
+              <input type="password" id="login-password" placeholder="Enter password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Sign In & Authenticate</button>
+          </form>
+
+          <!-- Quick Test Credentials Preset -->
+          <div class="demo-box">
+            <h4>💡 Quick Demo Accounts</h4>
+            <div class="demo-buttons">
+              <button class="btn btn-sm btn-outline" onclick="createDemoUser('user')">Register Demo Standard User</button>
+              <button class="btn btn-sm btn-outline" onclick="createDemoUser('admin')">Register Demo Admin User</button>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <p>Don't have an account? <a href="#" onclick="switchTab('register')">Register Now</a></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: USER DASHBOARD VIEW (PROTECTED) -->
+      <section id="view-dashboard" class="view-panel">
+        <div class="dashboard-grid">
+          <div class="card dashboard-card">
+            <div class="card-header">
+              <h2>Protected User Dashboard</h2>
+              <p>This route requires valid JWT Bearer token authentication.</p>
+            </div>
+            <div class="dashboard-content">
+              <button class="btn btn-secondary" onclick="fetchDashboardData()">
+                🔄 Fetch Protected Dashboard Data
+              </button>
+              <div id="dashboard-response" class="code-output hidden">
+                <pre id="dashboard-json"></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Session Token Inspector Card -->
+          <div class="card dashboard-card">
+            <div class="card-header">
+              <h2>Active Session Token (JWT)</h2>
+              <p>Inspect current stored JWT token & claims.</p>
+            </div>
+            <div class="token-box">
+              <label>Raw JWT Token:</label>
+              <textarea id="raw-jwt-display" readonly rows="3"></textarea>
+              <label>Decoded Claims (Payload):</label>
+              <pre id="decoded-jwt-display" class="code-output"></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: ADMIN PANEL VIEW (RBAC PROTECTED) -->
+      <section id="view-admin" class="view-panel">
+        <div class="card">
+          <div class="card-header flex-between">
+            <div>
+              <h2>Administrator Portal (RBAC Protected)</h2>
+              <p>Role-Based Access Control route restricted to users with <strong>admin</strong> role.</p>
+            </div>
+            <button class="btn btn-sm btn-secondary" onclick="fetchAdminUsers()">🔄 Refresh User List</button>
+          </div>
+
+          <div id="admin-access-denied" class="alert-box alert-error hidden">
+            <h3>🚫 Access Denied (403 Forbidden)</h3>
+            <p>Your logged-in account role is <span id="denied-role-name">USER</span>. Only users registered as <strong>ADMIN</strong> can access this panel.</p>
+          </div>
+
+          <div id="admin-content" class="admin-table-container">
+            <div class="stats-bar">
+              <span id="total-users-count">Total Registered Users: 0</span>
+            </div>
+            <table class="users-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Created At</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-tbody">
+                <!-- User rows populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="footer">
+      <p>Task-01 Secure User Authentication System &bull; Node.js Express + SQLite + JWT RBAC</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
