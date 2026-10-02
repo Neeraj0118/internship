@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pulse - Social Media Platform</title>
+
+  <!-- Google Fonts & FontAwesome / Lucide icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar-left">
+      <div class="brand-header">
+        <div class="brand-logo">
+          <i class="fa-solid fa-bolt-lightning logo-icon"></i>
+          <span class="brand-title">Pulse</span>
+        </div>
+        <button id="themeToggleBtn" class="btn-icon" title="Toggle Theme">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+      </div>
+
+      <!-- User Switcher Dropdown (Essential for testing multi-user interactions) -->
+      <div class="user-switcher-card">
+        <label for="currentUserSelect"><i class="fa-solid fa-user-gear"></i> Active Account:</label>
+        <select id="currentUserSelect" class="user-select-dropdown">
+          <!-- Populated by JS -->
+        </select>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="nav-menu">
+        <a href="#feed" class="nav-item active" data-page="feed">
+          <i class="fa-solid fa-house"></i>
+          <span>Feed</span>
+        </a>
+        <a href="#explore" class="nav-item" data-page="explore">
+          <i class="fa-solid fa-compass"></i>
+          <span>Explore</span>
+        </a>
+        <a href="#notifications" class="nav-item" data-page="notifications">
+          <i class="fa-solid fa-bell"></i>
+          <span>Notifications</span>
+          <span id="unreadBadge" class="badge danger-badge hidden">0</span>
+        </a>
+        <a href="#saved" class="nav-item" data-page="saved">
+          <i class="fa-solid fa-bookmark"></i>
+          <span>Bookmarks</span>
+        </a>
+        <a href="#profile" class="nav-item" data-page="profile">
+          <i class="fa-solid fa-user"></i>
+          <span>Profile</span>
+        </a>
+      </nav>
+
+      <button id="openNewPostModalBtn" class="btn btn-primary btn-block btn-lg mt-4">
+        <i class="fa-solid fa-feather-pointed"></i> <span>Create Post</span>
+      </button>
+
+      <!-- Active User Profile Card Footer -->
+      <div class="sidebar-user-footer" id="sidebarUserCard">
+        <img id="sidebarAvatar" src="" alt="Avatar" class="avatar avatar-md">
+        <div class="sidebar-user-info">
+          <div id="sidebarName" class="user-name">Loading...</div>
+          <div id="sidebarUsername" class="user-handle">@username</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER MAIN CONTENT AREA -->
+    <main class="main-content">
+      
+      <!-- TOP BAR -->
+      <header class="top-bar">
+        <div class="page-header-info">
+          <h2 id="pageTitle">Home Feed</h2>
+          <p id="pageSubtitle" class="text-muted">Discover posts and updates from around the network</p>
+        </div>
+
+        <div class="search-bar-container">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="globalSearchInput" placeholder="Search posts, #tags, or @users...">
+        </div>
+      </header>
+
+      <!-- VIEW: FEED / HOME -->
+      <section id="viewFeed" class="view-section active">
+        <!-- Feed Navigation Tabs -->
+        <div class="feed-tabs">
+          <button class="feed-tab active" data-feed="all">
+            <i class="fa-solid fa-globe"></i> For You
+          </button>
+          <button class="feed-tab" data-feed="following">
+            <i class="fa-solid fa-user-group"></i> Following
+          </button>
+          <button class="feed-tab" data-feed="trending">
+            <i class="fa-solid fa-fire"></i> Trending
+          </button>
+        </div>
+
+        <!-- Inline Post Composer Card -->
+        <div class="card create-post-card">
+          <div class="create-post-header">
+            <img id="composerAvatar" src="" class="avatar avatar-md" alt="Avatar">
+            <div class="composer-input-wrapper">
+              <textarea id="postContentInput" placeholder="What's happening? Use #hashtags or @mentions..." rows="3"></textarea>
+              
+              <!-- Selected Media Preview -->
+              <div id="mediaPreviewContainer" class="media-preview-container hidden">
+                <div class="media-preview-wrapper">
+                  <span id="mediaPreviewContent"></span>
+                  <button id="removeMediaBtn" class="btn-remove-media" title="Remove attachment">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Tagged Users Chips container -->
+              <div id="taggedUsersContainer" class="tagged-users-container"></div>
+            </div>
+          </div>
+
+          <div class="create-post-footer">
+            <div class="post-actions-left">
+              <label class="post-action-btn" title="Attach Image or Video">
+                <i class="fa-solid fa-image icon-image"></i> Image/Video
+                <input type="file" id="postFileInput" accept="image/*,video/*" class="hidden-file-input">
+              </label>
+
+              <button type="button" id="tagUserBtn" class="post-action-btn" title="Tag a user">
+                <i class="fa-solid fa-user-tag icon-tag"></i> Tag User
+              </button>
+
+              <div class="tag-input-popover hidden" id="tagUserPopover">
+                <input type="text" id="tagUserInput" placeholder="Enter username to tag...">
+                <button type="button" id="addTagBtn" class="btn btn-sm btn-primary">Add</button>
+              </div>
+            </div>
+
+            <div class="post-actions-right">
+              <span id="charCount" class="char-count">0 / 280</span>
+              <button id="submitPostBtn" class="btn btn-primary">
+                <span>Post</span> <i class="fa-solid fa-paper-plane"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Tag Filter Banner -->
+        <div id="tagFilterBanner" class="filter-banner hidden">
+          <span>Filtering by: <strong id="activeTagName">#tag</strong></span>
+          <button id="clearTagFilterBtn" class="btn btn-xs btn-outline">Clear Filter</button>
+        </div>
+
+        <!-- Posts List Feed Container -->
+        <div id="postsContainer" class="posts-feed">
+          <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading posts...</div>
+        </div>
+      </section>
+
+      <!-- VIEW: PROFILE -->
+      <section id="viewProfile" class="view-section">
+        <div class="profile-header-card card">
+          <div class="profile-cover">
+            <img id="profileCoverImg" src="" alt="Cover Image">
+          </div>
+          <div class="profile-info-bar">
+            <div class="profile-avatar-container">
+              <img id="profileAvatarImg" src="" alt="Avatar" class="avatar profile-avatar">
+            </div>
+            <div class="profile-actions">
+              <button id="editProfileBtn" class="btn btn-outline">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Profile
+              </button>
+              <button id="followUserBtn" class="btn btn-primary hidden">
+                <i class="fa-solid fa-user-plus"></i> Follow
+              </button>
+            </div>
+          </div>
+
+          <div class="profile-details">
+            <h2 id="profileDisplayName">Display Name</h2>
+            <div id="profileUsername" class="text-muted">@username</div>
+            <p id="profileBio" class="profile-bio">User bio here...</p>
+
+            <div class="profile-meta">
+              <span id="profileLocation"><i class="fa-solid fa-location-dot"></i> Location</span>
+              <span id="profileWebsite"><i class="fa-solid fa-link"></i> <a href="#" target="_blank">Website</a></span>
+              <span id="profileJoined"><i class="fa-regular fa-calendar-days"></i> Joined 2026</span>
+            </div>
+
+            <div class="profile-stats">
+              <div class="stat-item" id="statPosts">
+                <strong id="statPostsCount">0</strong> <span>Posts</span>
+              </div>
+              <div class="stat-item clickable" id="statFollowers">
+                <strong id="statFollowersCount">0</strong> <span>Followers</span>
+              </div>
+              <div class="stat-item clickable" id="statFollowing">
+                <strong id="statFollowingCount">0</strong> <span>Following</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-tabs">
+            <button class="profile-tab active" data-tab="user">Posts</button>
+            <button class="profile-tab" data-tab="liked">Liked</button>
+            <button class="profile-tab" data-tab="media">Media</button>
+          </div>
+        </div>
+
+        <div id="profilePostsContainer" class="posts-feed"></div>
+      </section>
+
+      <!-- VIEW: NOTIFICATIONS -->
+      <section id="viewNotifications" class="view-section">
+        <div class="card notif-header-card">
+          <div class="notif-header-actions">
+            <h3>Notifications</h3>
+            <button id="markAllReadBtn" class="btn btn-sm btn-outline">
+              <i class="fa-solid fa-check-double"></i> Mark all read
+            </button>
+          </div>
+        </div>
+
+        <div id="notificationsContainer" class="notifications-feed">
+          <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading notifications...</div>
+        </div>
+      </section>
+
+      <!-- VIEW: EXPLORE -->
+      <section id="viewExplore" class="view-section">
+        <div class="card explore-hero-card">
+          <h3><i class="fa-solid fa-fire text-primary"></i> Explore Trending Topics</h3>
+          <p class="text-muted">Discover what's trending across the Pulse network right now.</p>
+        </div>
+
+        <div class="explore-grid" id="exploreGrid">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- VIEW: BOOKMARKS / SAVED -->
+      <section id="viewSaved" class="view-section">
+        <div class="card page-title-card">
+          <h3><i class="fa-solid fa-bookmark text-primary"></i> Bookmarked Posts</h3>
+          <p class="text-muted">Posts you have saved for later reading.</p>
+        </div>
+        <div id="savedPostsContainer" class="posts-feed"></div>
+      </section>
+
+    </main>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="sidebar-right">
+      
+      <!-- Trending Hashtags Widget -->
+      <div class="widget-card card">
+        <div class="widget-header">
+          <h4><i class="fa-solid fa-arrow-trend-up text-primary"></i> Trending Tags</h4>
+        </div>
+        <div id="trendingTagsList" class="trending-tags-list">
+          <div class="text-muted">Loading trending tags...</div>
+        </div>
+      </div>
+
+      <!-- Who To Follow Recommendation Widget -->
+      <div class="widget-card card mt-4">
+        <div class="widget-header">
+          <h4><i class="fa-solid fa-user-plus text-primary"></i> Who to Follow</h4>
+        </div>
+        <div id="whoToFollowList" class="who-to-follow-list">
+          <div class="text-muted">Loading recommendations...</div>
+        </div>
+      </div>
+
+      <!-- Network Stats Widget -->
+      <div class="widget-card card mt-4">
+        <div class="widget-header">
+          <h4><i class="fa-solid fa-chart-line text-primary"></i> Network Stats</h4>
+        </div>
+        <div class="stats-mini-grid">
+          <div class="mini-stat">
+            <span class="mini-stat-num" id="networkTotalUsers">5</span>
+            <span class="mini-stat-label">Active Users</span>
+          </div>
+          <div class="mini-stat">
+            <span class="mini-stat-num" id="networkTotalPosts">5+</span>
+            <span class="mini-stat-label">Total Posts</span>
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer-legal">
+        <p>Pulse Social Media Platform &copy; 2026</p>
+        <p>Built with Vanilla JS, Express & SQLite</p>
+      </footer>
+    </aside>
+  </div>
+
+  <!-- MODAL: EDIT PROFILE -->
+  <div id="editProfileModal" class="modal-overlay hidden">
+    <div class="modal-card card">
+      <div class="modal-header">
+        <h3>Edit Profile</h3>
+        <button class="closeModalBtn btn-icon"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="editProfileForm" class="modal-form">
+        <div class="form-group">
+          <label for="editDisplayName">Display Name</label>
+          <input type="text" id="editDisplayName" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+          <label for="editBio">Bio</label>
+          <textarea id="editBio" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="editLocation">Location</label>
+          <input type="text" id="editLocation" class="form-control" placeholder="e.g. San Francisco, CA">
+        </div>
+
+        <div class="form-group">
+          <label for="editWebsite">Website</label>
+          <input type="url" id="editWebsite" class="form-control" placeholder="https://yourwebsite.com">
+        </div>
+
+        <div class="form-group">
+          <label for="editAvatarFile">Avatar Image (Upload or URL)</label>
+          <input type="file" id="editAvatarFile" accept="image/*" class="form-control mb-2">
+          <input type="text" id="editAvatarUrl" class="form-control" placeholder="Or paste image URL...">
+        </div>
+
+        <div class="form-group">
+          <label for="editCoverFile">Cover Header Image (Upload or URL)</label>
+          <input type="file" id="editCoverFile" accept="image/*" class="form-control mb-2">
+          <input type="text" id="editCoverUrl" class="form-control" placeholder="Or paste cover URL...">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="closeModalBtn btn btn-outline">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: IMAGE / MEDIA LIGHTBOX -->
+  <div id="lightboxModal" class="modal-overlay hidden">
+    <div class="lightbox-content">
+      <button id="closeLightboxBtn" class="btn-icon lightbox-close"><i class="fa-solid fa-xmark"></i></button>
+      <div id="lightboxBody" class="lightbox-body"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: FOLLOWERS / FOLLOWING LIST -->
+  <div id="userListModal" class="modal-overlay hidden">
+    <div class="modal-card card">
+      <div class="modal-header">
+        <h3 id="userListModalTitle">Users</h3>
+        <button class="closeModalBtn btn-icon"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="userListModalBody" class="user-list-modal-body">
+        <!-- List populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Application Scripts -->
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/components.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
